@@ -54,7 +54,7 @@ Example:
 
 **The package must expose :**
 - `Convert(jsonlogic interface{})`
-- `AddOperator(jsonlogicKeyword string, mongodbResult bson.D{})` ? Not sure about this format, need to start development to see what happens.
+- `AddOperator(jsonlogicKeyword string, func mongodbResult(data interface{}) bson.D{})` ? Not sure about this format, need to start development to see what happens.
 
 ## Tests
 
