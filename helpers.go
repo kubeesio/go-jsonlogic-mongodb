@@ -1,4 +1,4 @@
-package gojsonlogicmongodb
+package main
 
 import (
 	"reflect"
@@ -94,28 +94,4 @@ func toString(value interface{}) string {
 	}
 
 	return value.(string)
-}
-
-func isOperator(op string) bool {
-	operators := []string{
-		"==",
-		"!=",
-		"!",
-		"or",
-		"and",
-		"filter",
-		"var",
-	}
-
-	for customOperator := range customOperators {
-		operators = append(operators, customOperator)
-	}
-
-	for _, operator := range operators {
-		if operator == op {
-			return true
-		}
-	}
-
-	return false
 }
