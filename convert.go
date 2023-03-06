@@ -1,9 +1,10 @@
-package main
+package gojsonlogicmongodb
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/diegoholiveira/jsonlogic/v3"
@@ -11,47 +12,42 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// sample code
-func main() {
-	logic := strings.NewReader(`{"==": [1, 1]}`)
-
-	if !jsonlogic.IsValid(logic) {
-		logrus.Errorln("invalid jsonlogic")
-		return
-	}
-
-	var rules interface{}
-
-	err := json.Unmarshal([]byte(`{"==": [1, 1]}`), &rules)
+func Convert(rules io.Reader) (bson.D, error) {
+	rulesByte, err := io.ReadAll(rules)
 	if err != nil {
-		logrus.WithError(err).Errorln("unable to unmarshal")
-		return
+		return nil, err
 	}
 
-	// not working, why ?
-	// decoderRule := json.NewDecoder(logic)
-	// err = decoderRule.Decode(&rules)
-	// if err != nil {
-	// 	logrus.WithError(err).Errorln("unable to decode")
+	r1 := strings.NewReader(string(rulesByte))
+	if !jsonlogic.IsValid(r1) {
+		return nil, errors.New("invalid jsonlogic")
+	}
 
-	// 	return
-	// }
+	var _rules interface{}
 
-	logrus.WithField("interface", rules).Infoln("rules")
+	r2 := strings.NewReader(string(rulesByte))
+	decoderRule := json.NewDecoder(r2)
+	err = decoderRule.Decode(&_rules)
+	if err != nil {
+		return nil, err
+	}
+	output, err := internalConvert(_rules)
+	if err != nil {
+		return nil, err
+	}
 
-	convert(rules)
-	// converted, err := convert(logic)
-	// if err != nil {
-	// 	logrus.Errorln("unable to convert")
-	// }
+	var unmarshaledData interface{}
+	if err := bson.Unmarshal([]byte(fmt.Sprint(output)), unmarshaledData); err != nil {
+		return nil, err
+	}
 
-	// logrus.WithField("data", converted).Infoln("data successfully converted")
+	return output.(bson.D), nil
 }
 
-func convert(rules interface{}) {
+func internalConvert(rules interface{}) (interface{}, error) {
 	if isVar(rules) {
 		logrus.Infoln("isvar")
-		// return true
+		return bson.D{}, nil
 	}
 
 	if isMap(rules) {
@@ -61,13 +57,11 @@ func convert(rules interface{}) {
 			case "==":
 				res, err := convertEqual(value)
 				if err != nil {
-					logrus.WithError(err).Errorln("unable to convert equal operator")
+					return nil, err
 				}
 
-				logrus.WithField("converted-data", res).Infoln("yes")
+				return res, nil
 			}
-
-			// return convert(rules)
 		}
 	}
 
@@ -92,7 +86,11 @@ func convert(rules interface{}) {
 
 	logrus.WithField("yes", isPrimitive(rules)).Infoln("isprimitive")
 
-	// return isPrimitive(rules)
+	if isPrimitive(rules) {
+		return rules, nil
+	}
+
+	return bson.D{}, nil
 }
 
 func convertEqual(value interface{}) (bson.D, error) {
@@ -106,6 +104,16 @@ func convertEqual(value interface{}) (bson.D, error) {
 		return nil, errors.New("arguments must be a primitive or a var")
 	}
 
+	firstArgument, err := internalConvert(arguments[0])
+	if err != nil {
+		return nil, err
+	}
+
+	secondArgument, err := internalConvert(arguments[1])
+	if err != nil {
+		return nil, err
+	}
+
 	// bson.D needs a string in the first argument
-	return bson.D{{"$match", bson.D{{fmt.Sprint(arguments[0]), arguments[1]}}}}, nil
+	return bson.D{{"$match", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
 }
