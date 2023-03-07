@@ -31,13 +31,9 @@ func Convert(rules io.Reader) (bson.D, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	output, err := internalConvert(_rules)
 	if err != nil {
-		return nil, err
-	}
-
-	var unmarshaledData interface{}
-	if err := bson.Unmarshal([]byte(fmt.Sprint(output)), unmarshaledData); err != nil {
 		return nil, err
 	}
 
@@ -46,12 +42,10 @@ func Convert(rules io.Reader) (bson.D, error) {
 
 func internalConvert(rules interface{}) (interface{}, error) {
 	if isVar(rules) {
-		logrus.Infoln("isvar")
 		return bson.D{}, nil
 	}
 
 	if isMap(rules) {
-		logrus.Infoln("ismap")
 		for operator, value := range rules.(map[string]interface{}) {
 			switch operator {
 			case "==":
@@ -84,12 +78,11 @@ func internalConvert(rules interface{}) (interface{}, error) {
 		// return true
 	}
 
-	logrus.WithField("yes", isPrimitive(rules)).Infoln("isprimitive")
-
 	if isPrimitive(rules) {
 		return rules, nil
 	}
 
+	// handle custom operator
 	return bson.D{}, nil
 }
 
@@ -114,6 +107,6 @@ func convertEqual(value interface{}) (bson.D, error) {
 		return nil, err
 	}
 
-	// bson.D needs a string in the first argument
+	// bson.D needs a string in the first argument and accept string or float for the second
 	return bson.D{{"$match", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
 }
