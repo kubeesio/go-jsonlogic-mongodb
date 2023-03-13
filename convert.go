@@ -62,6 +62,13 @@ func internalConvert(rules interface{}) (interface{}, error) {
 				}
 
 				return res, nil
+			case "!":
+				res, err := convertNot(value)
+				if err != nil {
+					return nil, err
+				}
+
+				return res, nil
 			}
 		}
 	}
@@ -122,6 +129,31 @@ func convertNotEqual(value interface{}) (bson.D, error) {
 	}
 
 	return bson.D{{"$ne", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
+}
+
+func convertNot(value interface{}) (bson.D, error) {
+	// if the value is a map, we still need to recursively convert it
+	if isMap(value) {
+		value, _ = internalConvert(value)
+		return bson.D{{"$not", value}}, nil
+	}
+
+	if !isSlice(value) {
+		if isBool(value) {
+			return bson.D{{"$not", value}}, nil
+		}
+
+		return nil, errors.New("value must be a slice with two arguments")
+	}
+
+	arguments := value.([]interface{})
+
+	firstArgument, secondArgument, err := getArguments(arguments)
+	if err != nil {
+		return nil, err
+	}
+
+	return bson.D{{"$not", bson.D{{"$eq", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}}}, nil
 }
 
 func getArguments(arguments []interface{}) (interface{}, interface{}, error) {

@@ -23,6 +23,9 @@ func TestConvert(t *testing.T) {
 		{name: "convert equal example", args: args{rules: strings.NewReader(`{"==": [1, 1]}`)}, want: bson.D{{"$match", bson.D{{"1", 1.0}}}}, wantErr: false},
 		{name: "invalid jsonlogic", args: args{rules: strings.NewReader(`{"==": [1, ]}`)}, wantErr: true},
 		{name: "convert not equal jsonlogic", args: args{rules: strings.NewReader(`{"!=": [1, 0]}`)}, want: bson.D{{"$ne", bson.D{{"1", 0.0}}}}, wantErr: false},
+		{name: "convert not jsonlogic", args: args{rules: strings.NewReader(`{"!": true}`)}, want: bson.D{{"$not", true}}, wantErr: false},
+		{name: "convert complex not jsonlogic", args: args{rules: strings.NewReader(`{"!": {"==": [1, 1]}}`)}, want: bson.D{{"$not", bson.D{{"$match", bson.D{{"1", 1.0}}}}}}, wantErr: false},
+		// {name: "convert 2 equal joined by and example", args: args{rules: strings.NewReader(`{"and": [{"!=": [1, 0]}, {"==": [1, 1]}]}`)}, want: bson.D{{"$and", bson.A{bson.D{{"$ne", bson.D{{"1", 0.0}}}}, bson.D{{"$match", bson.D{{"1", 1.0}}}}}}}, wantErr: false},
 	}
 
 	for _, tt := range tests {
