@@ -1,4 +1,4 @@
-module github.com/kubees/go-jsonlogic-mongodb
+module github.com/kubeesio/go-jsonlogic-mongodb
 
 go 1.20
 
