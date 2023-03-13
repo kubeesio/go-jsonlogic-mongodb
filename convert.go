@@ -100,7 +100,7 @@ func convertEqual(value interface{}) (bson.D, error) {
 
 	arguments := value.([]interface{})
 
-	firstArgument, secondArgument, err := checkCommonArgumentsValidity(arguments)
+	firstArgument, secondArgument, err := getArguments(arguments)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func convertNotEqual(value interface{}) (bson.D, error) {
 
 	arguments := value.([]interface{})
 
-	firstArgument, secondArgument, err := checkCommonArgumentsValidity(arguments)
+	firstArgument, secondArgument, err := getArguments(arguments)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func convertNotEqual(value interface{}) (bson.D, error) {
 	return bson.D{{"$ne", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
 }
 
-func checkCommonArgumentsValidity(arguments []interface{}) (interface{}, interface{}, error) {
+func getArguments(arguments []interface{}) (interface{}, interface{}, error) {
 	if !isVar(arguments[0]) && !isPrimitive(arguments[0]) && !isVar(arguments[1]) && !isPrimitive(arguments[1]) {
 		return nil, nil, errors.New("arguments must be a primitive or a var")
 	}
