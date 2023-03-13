@@ -55,6 +55,13 @@ func internalConvert(rules interface{}) (interface{}, error) {
 				}
 
 				return res, nil
+			case "!=":
+				res, err := convertNotEqual(value)
+				if err != nil {
+					return nil, err
+				}
+
+				return res, nil
 			}
 		}
 	}
@@ -93,20 +100,44 @@ func convertEqual(value interface{}) (bson.D, error) {
 
 	arguments := value.([]interface{})
 
-	if !isVar(arguments[0]) && !isPrimitive(arguments[0]) && !isVar(arguments[1]) && !isPrimitive(arguments[1]) {
-		return nil, errors.New("arguments must be a primitive or a var")
-	}
-
-	firstArgument, err := internalConvert(arguments[0])
-	if err != nil {
-		return nil, err
-	}
-
-	secondArgument, err := internalConvert(arguments[1])
+	firstArgument, secondArgument, err := checkCommonArgumentsValidity(arguments)
 	if err != nil {
 		return nil, err
 	}
 
 	// bson.D needs a string in the first argument and accept string or float for the second
 	return bson.D{{"$match", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
+}
+
+func convertNotEqual(value interface{}) (bson.D, error) {
+	if !isSlice(value) {
+		return nil, errors.New("value must be a slice with two arguments")
+	}
+
+	arguments := value.([]interface{})
+
+	firstArgument, secondArgument, err := checkCommonArgumentsValidity(arguments)
+	if err != nil {
+		return nil, err
+	}
+
+	return bson.D{{"$ne", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
+}
+
+func checkCommonArgumentsValidity(arguments []interface{}) (interface{}, interface{}, error) {
+	if !isVar(arguments[0]) && !isPrimitive(arguments[0]) && !isVar(arguments[1]) && !isPrimitive(arguments[1]) {
+		return nil, nil, errors.New("arguments must be a primitive or a var")
+	}
+
+	firstArgument, err := internalConvert(arguments[0])
+	if err != nil {
+		return nil, nil, err
+	}
+	
+	secondArgument, err := internalConvert(arguments[1])
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return firstArgument, secondArgument, err
 }

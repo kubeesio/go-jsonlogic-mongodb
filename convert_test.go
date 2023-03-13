@@ -22,6 +22,7 @@ func TestConvert(t *testing.T) {
 	}{
 		{name: "convert equal example", args: args{rules: strings.NewReader(`{"==": [1, 1]}`)}, want: bson.D{{"$match", bson.D{{"1", 1.0}}}}, wantErr: false},
 		{name: "invalid jsonlogic", args: args{rules: strings.NewReader(`{"==": [1, ]}`)}, wantErr: true},
+		{name: "convert not equal jsonlogic", args: args{rules: strings.NewReader(`{"!=": [1, 0]}`)}, want: bson.D{{"$ne", bson.D{{"1", 0.0}}}}, wantErr: false},
 	}
 
 	for _, tt := range tests {
