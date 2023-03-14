@@ -44,6 +44,13 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 				}
 
 				return res, nil
+			case "or":
+				res, err := ConvertOr(value)
+				if err != nil {
+					return nil, err
+				}
+
+				return res, nil
 			}
 		}
 	}
