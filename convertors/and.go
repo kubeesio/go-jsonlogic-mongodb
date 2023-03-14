@@ -12,26 +12,16 @@ func ConvertAnd(value interface{}) (bson.D, error) {
 		return nil, errors.New("value must be a slice with two arguments")
 	}
 
-	arguments := value.([]interface{})
+	var internalError error
 
-	firstArgument, secondArgument, err := GetArguments(arguments)
+	firstArgument, internalError := InternalConvert(value.([]interface{})[0])
+	if internalError != nil {
+		return nil, internalError
+	}
 
-	if err != nil {
-		var internalError error
-
-		if firstArgument == nil {
-			firstArgument, internalError = InternalConvert(value.([]interface{})[0])
-			if internalError != nil {
-				return nil, internalError
-			}
-		}
-
-		if secondArgument == nil {
-			secondArgument, internalError = InternalConvert(value.([]interface{})[1])
-			if internalError != nil {
-				return nil, internalError
-			}
-		}
+	secondArgument, internalError := InternalConvert(value.([]interface{})[1])
+	if internalError != nil {
+		return nil, internalError
 	}
 
 	return bson.D{{Key: "$and", Value: bson.A{firstArgument, secondArgument}}}, nil
