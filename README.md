@@ -7,4 +7,3 @@
 
 
 Convert JsonLogic into a MongoDB aggregate query.
-https://pkg.go.dev/github.com/kubeesio/go-jsonlogic-mongodb
