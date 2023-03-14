@@ -16,12 +16,12 @@ func ConvertNot(value interface{}) (bson.D, error) {
 			return nil, err
 		}
 
-		return bson.D{{"$not", value}}, nil
+		return bson.D{{Key: "$not", Value: value}}, nil
 	}
 
 	if !helpers.IsSlice(value) {
 		if helpers.IsBool(value) {
-			return bson.D{{"$not", value}}, nil
+			return bson.D{{Key: "$not", Value: value}}, nil
 		}
 
 		return nil, errors.New("value must be a slice with two arguments")
@@ -34,5 +34,5 @@ func ConvertNot(value interface{}) (bson.D, error) {
 		return nil, err
 	}
 
-	return bson.D{{"$not", bson.D{{"$eq", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}}}, nil
+	return bson.D{{Key: "$not", Value: bson.D{{Key: "$eq", Value: bson.D{{Key: fmt.Sprint(firstArgument), Value: secondArgument}}}}}}, nil
 }
