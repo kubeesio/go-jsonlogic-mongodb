@@ -25,7 +25,7 @@ func TestConvert(t *testing.T) {
 		{name: "convert not equal jsonlogic", args: args{rules: strings.NewReader(`{"!=": [1, 0]}`)}, want: bson.D{{Key: "$ne", Value: bson.D{{Key: "1", Value: 0.0}}}}, wantErr: false},
 		{name: "convert not jsonlogic", args: args{rules: strings.NewReader(`{"!": true}`)}, want: bson.D{{Key: "$not", Value: true}}, wantErr: false},
 		{name: "convert complex not jsonlogic", args: args{rules: strings.NewReader(`{"!": {"==": [1, 1]}}`)}, want: bson.D{{Key: "$not", Value: bson.D{{Key: "$match", Value: bson.D{{Key: "1", Value: 1.0}}}}}}, wantErr: false},
-		// {name: "convert 2 equal joined by and example", args: args{rules: strings.NewReader(`{"and": [{"!=": [1, 0]}, {"==": [1, 1]}]}`)}, want: bson.D{{"$and", bson.A{bson.D{{"$ne", bson.D{{"1", 0.0}}}}, bson.D{{"$match", bson.D{{"1", 1.0}}}}}}}, wantErr: false},
+		{name: "convert 2 equal joined by and example", args: args{rules: strings.NewReader(`{"and": [{"!=": [1, 2]}, {"==": [1, 1]}]}`)}, want: bson.D{{Key: "$and", Value: bson.A{bson.D{{Key: "$ne", Value: bson.D{{Key: "1", Value: 2.0}}}}, bson.D{{Key: "$match", Value: bson.D{{Key: "1", Value: 1.0}}}}}}}, wantErr: false},
 	}
 
 	for _, tt := range tests {
