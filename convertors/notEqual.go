@@ -20,5 +20,5 @@ func ConvertNotEqual(value interface{}) (bson.D, error) {
 		return nil, err
 	}
 
-	return bson.D{{"$ne", bson.D{{fmt.Sprint(firstArgument), secondArgument}}}}, nil
+	return bson.D{{Key: "$ne", Value: bson.D{{Key: fmt.Sprint(firstArgument), Value: secondArgument}}}}, nil
 }
