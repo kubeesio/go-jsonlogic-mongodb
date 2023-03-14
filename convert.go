@@ -134,7 +134,11 @@ func convertNotEqual(value interface{}) (bson.D, error) {
 func convertNot(value interface{}) (bson.D, error) {
 	// if the value is a map, we still need to recursively convert it
 	if isMap(value) {
-		value, _ = internalConvert(value)
+		value, err := internalConvert(value)
+		if err != nil {
+			return nil, err
+		}
+
 		return bson.D{{"$not", value}}, nil
 	}
 
@@ -165,7 +169,7 @@ func getArguments(arguments []interface{}) (interface{}, interface{}, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	
+
 	secondArgument, err := internalConvert(arguments[1])
 	if err != nil {
 		return nil, nil, err
