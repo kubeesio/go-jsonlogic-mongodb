@@ -34,6 +34,5 @@ func ConvertAnd(value interface{}) (bson.D, error) {
 		}
 	}
 
-	// bson.D needs a string in the first argument and accept string or float for the second
 	return bson.D{{Key: "$and", Value: bson.A{firstArgument, secondArgument}}}, nil
 }
