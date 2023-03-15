@@ -2,7 +2,6 @@ package convertors
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/kubeesio/go-jsonlogic-mongodb/helpers"
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,5 +20,5 @@ func ConvertEqual(value interface{}) (bson.D, error) {
 	}
 
 	// bson.D needs a string in the first argument and accept string or float for the second
-	return bson.D{{Key: "$match", Value: bson.D{{Key: fmt.Sprint(firstArgument), Value: secondArgument}}}}, nil
+	return bson.D{{Key: "$eq", Value: bson.A{firstArgument, secondArgument}}}, nil
 }
