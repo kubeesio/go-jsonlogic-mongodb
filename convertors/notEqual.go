@@ -2,7 +2,6 @@ package convertors
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/kubeesio/go-jsonlogic-mongodb/helpers"
 	"go.mongodb.org/mongo-driver/bson"
@@ -20,5 +19,5 @@ func ConvertNotEqual(value interface{}) (bson.D, error) {
 		return nil, err
 	}
 
-	return bson.D{{Key: "$ne", Value: bson.D{{Key: fmt.Sprint(firstArgument), Value: secondArgument}}}}, nil
+	return bson.D{{Key: "$ne", Value: bson.A{firstArgument, secondArgument}}}, nil
 }

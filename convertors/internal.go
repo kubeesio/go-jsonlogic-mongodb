@@ -2,15 +2,17 @@ package convertors
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/kubeesio/go-jsonlogic-mongodb/helpers"
-	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func InternalConvert(rules interface{}) (interface{}, error) {
 	if helpers.IsVar(rules) {
-		return bson.D{}, nil
+		arguments := rules.(map[string]interface{})
+		varData := strings.Replace(arguments["var"].(string), ".", "$", 1)
+		return varData, nil
 	}
 
 	if helpers.IsMap(rules) {
@@ -53,25 +55,6 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 				return res, nil
 			}
 		}
-	}
-
-	if helpers.IsSlice(rules) {
-		logrus.Infoln("isslice")
-		// for _, value := range rules.([]interface{}) {
-		// 	if IsSlice(value) || isMap(value) {
-		// 		if convert(value) {
-		// 			continue
-		// 		}
-
-		// 		return false
-		// 	}
-
-		// 	if IsVar(value) || isPrimitive(value) {
-		// 		continue
-		// 	}
-		// }
-
-		// return true
 	}
 
 	if helpers.IsPrimitive(rules) {

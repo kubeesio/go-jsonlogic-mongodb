@@ -10,8 +10,8 @@ Steps :
 
 | JsonLogic Keyword | MongoDB aggregate equivalent |
 | ----------------- | ---------------------------- |
-| ==                | $match                       |
-| !=                | $match + $not & $eq          |
+| ==                | $eq                          |
+| !=                | $ne                          |
 | !                 | $not                         |
 | or                | $or                          |
 | and               | $and                         |
