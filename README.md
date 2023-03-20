@@ -55,6 +55,43 @@ bson.D{{
 }}
 ```
 
+### Not operator
+
+<ins>Json Logic input</ins>
+
+```go
+{"!": "true"}
+```
+
+<ins>Mongo output</ins>
+
+```go
+bson.D{{
+  Key: "$not", 
+  Value: "true"
+}}
+```
+
+### Var operator
+
+<ins>Json Logic input</ins>
+
+```go
+{"==": ["kube-system", {"var": ".metadata.namespace"}]}
+```
+
+<ins>Mongo output</ins>
+
+```go
+bson.D{{
+  Key: "$eq",
+  Value: bson.A{
+    "kube-system",
+    "$metadata.namespace"
+  }
+}}
+```
+
 ### And & Or operators
 
 And & Or operators work the same way, just specify what operator is needed it will result in a mongo `$and` or `$or`.
