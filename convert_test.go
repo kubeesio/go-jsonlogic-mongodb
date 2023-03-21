@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/kubeesio/go-jsonlogic-mongodb/convertors"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -33,6 +34,39 @@ func TestConvert(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			got, err := Convert(tt.args.rules)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Convert() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("Convert() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAddOperator(t *testing.T) {
+	type args struct {
+		name  string
+		fn    func(value interface{}) (bson.D, error)
+		rules io.Reader
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    bson.D
+		wantErr bool
+	}{
+		{name: "add custom operator", args: args{name: "equal", rules: strings.NewReader(`{"equal": [1, 1]}`), fn: convertors.ConvertEqual}, want: bson.D{{Key: "$eq", Value: bson.A{1.0, 1.0}}}, wantErr: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			AddOperator(tt.args.name, tt.args.fn)
+
 			got, err := Convert(tt.args.rules)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Convert() error = %v, wantErr %v", err, tt.wantErr)

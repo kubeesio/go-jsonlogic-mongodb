@@ -8,11 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-var customOperators = make(map[string]func(value interface{}) (bson.D, error))
-
-func AddOperator(jsonlogicKeyword string, fn func(value interface{}) (bson.D, error)) {
-	customOperators[jsonlogicKeyword] = fn
-}
+var CustomOperators = make(map[string]func(value interface{}) (bson.D, error))
 
 func InternalConvert(rules interface{}) (interface{}, error) {
 	if helpers.IsVar(rules) {
@@ -24,7 +20,7 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 	if helpers.IsMap(rules) {
 		for operator, value := range rules.(map[string]interface{}) {
 
-			for index, customOperation := range customOperators {
+			for index, customOperation := range CustomOperators {
 				if operator == index {
 					return customOperation(value)
 				}

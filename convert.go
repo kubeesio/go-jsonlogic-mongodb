@@ -38,3 +38,10 @@ func Convert(rules io.Reader) (bson.D, error) {
 
 	return output.(bson.D), nil
 }
+
+func AddOperator(jsonlogicKeyword string, fn func(value interface{}) (bson.D, error)) {
+	convertors.CustomOperators[jsonlogicKeyword] = fn
+
+	// register custom operator to jsonLogic library in order to not throw an error during the jsonlogic validation
+	jsonlogic.AddOperator(jsonlogicKeyword, func(values interface{}, data interface{}) (result interface{}) { return "" })
+}
