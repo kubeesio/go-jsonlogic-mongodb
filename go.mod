@@ -3,9 +3,9 @@ module github.com/kubeesio/go-jsonlogic-mongodb
 go 1.20
 
 require (
-	github.com/diegoholiveira/jsonlogic/v3 v3.2.7
+	github.com/diegoholiveira/jsonlogic/v3 v3.3.0
 	github.com/google/go-cmp v0.5.9
-	go.mongodb.org/mongo-driver v1.11.2
+	go.mongodb.org/mongo-driver v1.12.1
 )
 
 require (
