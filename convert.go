@@ -9,6 +9,7 @@ import (
 	"github.com/diegoholiveira/jsonlogic/v3"
 	"github.com/kubeesio/go-jsonlogic-mongodb/convertors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Convert(rules io.Reader) (bson.D, error) {
@@ -37,4 +38,22 @@ func Convert(rules io.Reader) (bson.D, error) {
 	}
 
 	return output.(bson.D), nil
+}
+
+func AddConvertor(name string, function func(interface{}) (primitive.D, error)) {
+	convertors.CustomConvertors = append(convertors.CustomConvertors, convertors.CustomConvertor{
+		Name:     name,
+		Function: function,
+	})
+
+	// add fake jsonlogic function so it validates the operator name
+	jsonlogic.AddOperator(name, func(values interface{}, data interface{}) (result interface{}) { return })
+}
+
+func GetArguments(arguments []interface{}) (interface{}, interface{}, error) {
+	return convertors.GetArguments(arguments)
+}
+
+func InternalConvert(rules interface{}) (interface{}, error) {
+	return convertors.InternalConvert(rules)
 }

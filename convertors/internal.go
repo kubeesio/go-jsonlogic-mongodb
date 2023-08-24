@@ -53,6 +53,17 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 				}
 
 				return res, nil
+			default:
+				for _, c := range CustomConvertors {
+					if operator == c.Name {
+						res, err := c.Function(value)
+						if err != nil {
+							return nil, err
+						}
+
+						return res, nil
+					}
+				}
 			}
 		}
 	}
