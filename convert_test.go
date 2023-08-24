@@ -22,14 +22,14 @@ func isKeyValue(value interface{}) (primitive.D, error) {
 	}
 
 	return bson.D{{
-		"$match",
-		bson.D{{
-			"$expr", bson.D{{
-				"$eq", bson.A{
+		Key: "$match",
+		Value: bson.D{{
+			Key: "$expr", Value: bson.D{{
+				Key: "$eq", Value: bson.A{
 					bson.D{{
-						"$getField", bson.D{
-							{"field", bson.D{{"$literal", key}}},
-							{"input", firstArgument},
+						Key: "$getField", Value: bson.D{
+							{Key: "field", Value: bson.D{{"$literal", key}}},
+							{Key: "input", Value: firstArgument},
 						},
 					}},
 					val,
