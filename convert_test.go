@@ -28,7 +28,7 @@ func isKeyValue(value interface{}) (primitive.D, error) {
 				Key: "$eq", Value: bson.A{
 					bson.D{{
 						Key: "$getField", Value: bson.D{
-							{Key: "field", Value: bson.D{{"$literal", key}}},
+							{Key: "field", Value: bson.D{{Key: "$literal", Value: key}}},
 							{Key: "input", Value: firstArgument},
 						},
 					}},
@@ -59,7 +59,7 @@ func TestConvert(t *testing.T) {
 		{name: "convert 2 comparisons joined by or example", args: args{rules: strings.NewReader(`{"or": [{"!=": [1, 2]}, {"==": [1, 1]}]}`)}, want: bson.D{{Key: "$or", Value: bson.A{bson.D{{Key: "$ne", Value: bson.A{1.0, 2.0}}}, bson.D{{Key: "$eq", Value: bson.A{1.0, 1.0}}}}}}, wantErr: false},
 		{name: "convert complex and & or", args: args{rules: strings.NewReader(`{"and": [{"or": [{"!=": [1, 2]}, {"==": [1, 1]}]}, {"and": [{"!=": [1, 2]}, {"==": [1, 1]}]}]}`)}, want: bson.D{{Key: "$and", Value: bson.A{bson.D{{Key: "$or", Value: bson.A{bson.D{{Key: "$ne", Value: bson.A{1.0, 2.0}}}, bson.D{{Key: "$eq", Value: bson.A{1.0, 1.0}}}}}}, bson.D{{Key: "$and", Value: bson.A{bson.D{{Key: "$ne", Value: bson.A{1.0, 2.0}}}, bson.D{{Key: "$eq", Value: bson.A{1.0, 1.0}}}}}}}}}, wantErr: false},
 		{name: "convert simple example with var", args: args{rules: strings.NewReader(`{"==": ["observability", {"var": ".metadata.namespace"}]}`)}, want: bson.D{{Key: "$eq", Value: bson.A{"observability", "$metadata.namespace"}}}, wantErr: false},
-		{name: "convert custom operator with is_key_value", args: args{rules: strings.NewReader(`{"is_key_value": [{"var":".metadata.labels"},"app.kubernetes.io/name","kubees"]}`)}, want: bson.D{{Key: "$match", Value: bson.D{{Key: "$expr", Value: bson.D{{Key: "$eq", Value: bson.A{bson.D{{"$getField", bson.D{{"field", bson.D{{"$literal", "app.kubernetes.io/name"}}}, {"input", "$metadata.labels"}}}}, "kubees"}}}}}}}, wantErr: false},
+		{name: "convert custom operator with is_key_value", args: args{rules: strings.NewReader(`{"is_key_value": [{"var":".metadata.labels"},"app.kubernetes.io/name","kubees"]}`)}, want: bson.D{{Key: "$match", Value: bson.D{{Key: "$expr", Value: bson.D{{Key: "$eq", Value: bson.A{bson.D{{Key: "$getField", Value: bson.D{{Key: "field", Value: bson.D{{Key: "$literal", Value: "app.kubernetes.io/name"}}}, {Key: "input", Value: "$metadata.labels"}}}}, "kubees"}}}}}}}, wantErr: false},
 	}
 
 	for _, tt := range tests {
