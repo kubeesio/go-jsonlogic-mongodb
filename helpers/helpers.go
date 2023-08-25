@@ -64,6 +64,19 @@ func IsVar(value interface{}) bool {
 	return IsString(_var) || IsNumber(_var) || _var == nil
 }
 
+func IsVarFilter(value interface{}) bool {
+	if !IsMap(value) {
+		return false
+	}
+
+	_var, ok := value.(map[string]interface{})["$VAR_FILTER1"]
+	if !ok {
+		return false
+	}
+
+	return IsString(_var) || IsNumber(_var) || _var == nil
+}
+
 func ToSliceOfNumbers(values interface{}) []float64 {
 	_values := values.([]interface{})
 
