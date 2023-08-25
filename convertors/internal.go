@@ -15,6 +15,12 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 		return varData, nil
 	}
 
+	if helpers.IsVarFilter(rules) {
+		arguments := rules.(map[string]interface{})
+		varData := strings.Replace(arguments["$VAR_FILTER1"].(string), ".", "$$this.", 1)
+		return varData, nil
+	}
+
 	if helpers.IsMap(rules) {
 		for operator, value := range rules.(map[string]interface{}) {
 			switch operator {
@@ -48,6 +54,13 @@ func InternalConvert(rules interface{}) (interface{}, error) {
 				return res, nil
 			case "or":
 				res, err := ConvertOr(value)
+				if err != nil {
+					return nil, err
+				}
+
+				return res, nil
+			case "filter":
+				res, err := ConvertFilter(value)
 				if err != nil {
 					return nil, err
 				}
