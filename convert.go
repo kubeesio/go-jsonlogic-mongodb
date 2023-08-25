@@ -40,7 +40,7 @@ func Convert(rules io.Reader) (bson.D, error) {
 	return output.(bson.D), nil
 }
 
-func AddConvertor(name string, function func(interface{}) (primitive.D, error)) {
+func AddOperator(name string, function func(interface{}) (primitive.D, error)) {
 	convertors.CustomConvertors = append(convertors.CustomConvertors, convertors.CustomConvertor{
 		Name:     name,
 		Function: function,

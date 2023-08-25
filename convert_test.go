@@ -65,7 +65,7 @@ func TestConvert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.name == "convert custom operator with is_key_value" {
-				AddConvertor("is_key_value", isKeyValue)
+				AddOperator("is_key_value", isKeyValue)
 			}
 
 			got, err := Convert(tt.args.rules)
