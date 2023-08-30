@@ -12,17 +12,16 @@ func ConvertOr(value interface{}) (bson.D, error) {
 		return nil, errors.New("value must be a slice with two arguments")
 	}
 
-	var internalError error
+	var arguments bson.A
 
-	firstArgument, internalError := InternalConvert(value.([]interface{})[0])
-	if internalError != nil {
-		return nil, internalError
+	for _, argument := range value.([]interface{}) {
+		newArgument, err := InternalConvert(argument)
+		if err != nil {
+			return nil, err
+		}
+
+		arguments = append(arguments, newArgument)
 	}
 
-	secondArgument, internalError := InternalConvert(value.([]interface{})[1])
-	if internalError != nil {
-		return nil, internalError
-	}
-
-	return bson.D{{Key: "$or", Value: bson.A{firstArgument, secondArgument}}}, nil
+	return bson.D{{Key: "$or", Value: arguments}}, nil
 }
