@@ -140,3 +140,96 @@ bson.D{{
   }
 }}
 ```
+
+### Custom operator
+
+In order to add a custom operator, you need to use the `AddOperator` function.  
+To make it work, it is mandatory to add your custom operator on the `jsonlogic` library side too, otherwise, `go-jsonlogic-mongodb` will not  validate it.
+
+Example :
+
+Create your custom function
+```go
+func isKeyValue(value interface{}) (primitive.D, error) {
+	parsed, _ := value.([]interface{})
+
+	key := parsed[1].(string)
+	val := parsed[2].(string)
+
+	firstArgument, internalError := InternalConvert(value.([]interface{})[0])
+	if internalError != nil {
+		return nil, internalError
+	}
+
+	return bson.D{{
+		Key: "$match",
+		Value: bson.D{{
+			Key: "$expr", Value: bson.D{{
+				Key: "$eq", Value: bson.A{
+					bson.D{{
+						Key: "$getField", Value: bson.D{
+							{Key: "field", Value: bson.D{{Key: "$literal", Value: key}}},
+							{Key: "input", Value: firstArgument},
+						},
+					}},
+					val,
+				},
+			}},
+		}},
+	}}, nil
+}
+```
+
+Add go-jsonlogic-mongodb custom operator
+```go
+AddOperator("is_key_value", isKeyValue)
+```
+
+Override the `jsonlogic` operator, if you are not interested in applying the jsonlogic with your custom operator in the future, you can override it with an empty function like following :
+```go
+	jsonlogic.AddOperator(name, func(values interface{}, data interface{}) (result interface{}) { return })
+
+```
+
+This way, you can achieve this :
+
+```go
+{
+  "filter": [
+    {
+      "var": ".resources"
+    },
+    {
+      "==": [
+      {
+        "var": ".metadata.namespace"
+      },
+      1
+    ]}
+  ]
+}
+```
+
+<ins>Mongo output</ins>
+
+```go
+bson.D{{
+  Key: "$addFields", Value: bson.D{{
+    Key: "resources", Value: bson.D{{
+      Key: "$filter", Value: bson.D{
+        {
+          Key: "input", Value: "$resources"
+        },
+        {
+          Key: "cond", Value: bson.D{{
+            Key: "$eq", Value: bson.A{
+              "$$this.metadata.namespace",
+              1.0
+            }
+          }}
+        }
+      }
+    }}
+  }}
+}}
+```
