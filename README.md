@@ -195,17 +195,12 @@ This way, you can achieve this :
 
 ```go
 {
-  "filter": [
+  "is_key_value": [
     {
-      "var": ".resources"
+      "var":".metadata.labels"
     },
-    {
-      "==": [
-      {
-        "var": ".metadata.namespace"
-      },
-      1
-    ]}
+    "app.kubernetes.io/name",
+    "kubees"
   ]
 }
 ```
@@ -214,20 +209,22 @@ This way, you can achieve this :
 
 ```go
 bson.D{{
-  Key: "$addFields", Value: bson.D{{
-    Key: "resources", Value: bson.D{{
-      Key: "$filter", Value: bson.D{
-        {
-          Key: "input", Value: "$resources"
-        },
-        {
-          Key: "cond", Value: bson.D{{
-            Key: "$eq", Value: bson.A{
-              "$$this.metadata.namespace",
-              1.0
+  Key: "$match", Value: bson.D{{
+    Key: "$expr", Value: bson.D{{
+      Key: "$eq", Value: bson.A{
+        bson.D{{
+          Key: "$getField", Value: bson.D{
+            {
+              Key: "field", Value: bson.D{{
+                Key: "$literal", Value: "app.kubernetes.io/name"
+              }}
+            },
+            {
+              Key: "input", Value: "$metadata.labels"
             }
           }}
-        }
+        },
+        "kubees"
       }
     }}
   }}
